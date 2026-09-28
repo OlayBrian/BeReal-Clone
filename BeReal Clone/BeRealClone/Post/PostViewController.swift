@@ -7,6 +7,9 @@
 
 import UIKit
 
+import Photos
+import CoreLocation
+
 // TODO: Import Photos UI
 import PhotosUI
 // TODO: Import Parse Swift
@@ -18,8 +21,10 @@ class PostViewController: UIViewController {
     @IBOutlet weak var shareButton: UIBarButtonItem!
     @IBOutlet weak var captionTextField: UITextField!
     @IBOutlet weak var previewImageView: UIImageView!
+    
 
     private var pickedImage: UIImage?
+    private var pickedLocation: CLLocation?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +33,7 @@ class PostViewController: UIViewController {
     @IBAction func onPickedImageTapped(_ sender: UIBarButtonItem) {
         // TODO: Pt 1 - Present Image picker
         // Create a configuration object
-        var config = PHPickerConfiguration()
+        var config = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
 
         // Set the filter to only show images as options (i.e. no videos, etc.).
         config.filter = .images
@@ -47,6 +52,7 @@ class PostViewController: UIViewController {
 
         // Present the picker
         present(picker, animated: true)
+        
 
     }
 
@@ -75,7 +81,11 @@ class PostViewController: UIViewController {
 
         // Set the user as the current user
         post.user = User.current
-
+        
+        if let pickedLocation = pickedLocation {
+            post.location = try? ParseGeoPoint(location: pickedLocation)
+        }
+        
         // Save object in background (async)
         post.save { [weak self] result in
 
@@ -119,6 +129,13 @@ extension PostViewController: PHPickerViewControllerDelegate {
         guard let provider = results.first?.itemProvider,
            // Make sure the provider can load a UIImage
            provider.canLoadObject(ofClass: UIImage.self) else { return }
+        
+        let result = results.first
+
+        if let assetId = result?.assetIdentifier {
+            let assets = PHAsset.fetchAssets(withLocalIdentifiers: [assetId], options: nil)
+            pickedLocation = assets.firstObject?.location
+        }
 
         // Load a UIImage from the provider
         provider.loadObject(ofClass: UIImage.self) { [weak self] object, error in

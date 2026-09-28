@@ -8,6 +8,7 @@
 import UIKit
 import Alamofire
 import AlamofireImage
+import CoreLocation
 
 class PostCell: UITableViewCell {
 
@@ -23,7 +24,7 @@ class PostCell: UITableViewCell {
         if let user = post.user {
             usernameLabel.text = user.username
         }
-
+        
         // Image
         if let imageFile = post.imageFile,
            let imageUrl = imageFile.url {
@@ -37,20 +38,41 @@ class PostCell: UITableViewCell {
                 case .failure(let error):
                     print("❌ Error fetching image: \(error.localizedDescription)")
                     break
+                    
                 }
             }
         }
-
+        
         // Caption
         captionLabel.text = post.caption
-
+        
         // Date
         if let date = post.createdAt {
             dateLabel.text = DateFormatter.postFormatter.string(from: date)
         }
-
+        
+        if let location = post.location {
+            let clLocation = CLLocation(
+                latitude: location.latitude,
+                longitude: location.longitude
+            )
+            
+            CLGeocoder().reverseGeocodeLocation(clLocation) { [weak self] placemarks, error in
+                guard let placemark = placemarks?.first else { return }
+                
+                let city = placemark.locality
+                let state = placemark.administrativeArea
+                
+                DispatchQueue.main.async {
+                    if let city = city, let state = state {
+                        self?.dateLabel.text = "\(self?.dateLabel.text ?? "") • \(city), \(state)"
+                    } else if let city = city {
+                        self?.dateLabel.text = "\(self?.dateLabel.text ?? "") • \(city)"
+                    }
+                }
+            }
+        }
     }
-
     override func prepareForReuse() {
         super.prepareForReuse()
         // TODO: P1 - Cancel image download

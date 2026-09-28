@@ -4,7 +4,7 @@ Submitted by: **Brian Ribeiro**
 
 **BeReal** is an app that allows for the user to post photos with their own descriptions, 
 
-Time spent: **X** hours spent in total
+Time spent: **17** hours spent in total
 
 ## Required Features
 

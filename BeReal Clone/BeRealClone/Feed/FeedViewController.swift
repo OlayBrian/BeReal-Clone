@@ -15,7 +15,11 @@ class FeedViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
     private let refreshControl = UIRefreshControl()
-
+    private var isLoadingMorePosts = false
+    private var postSkip = 0
+    private let postLimit = 10
+    private var hasMorePosts = true
+    
     private var posts = [Post]() {
         didSet {
             // Reload table view data any time the posts variable gets updated.
@@ -36,9 +40,21 @@ class FeedViewController: UIViewController {
         
     }
     
-    @objc private func refreshPosts(_ sender: Any) {
-        queryPosts()
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let position = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height
+        let scrollViewHeight = scrollView.frame.size.height
+
+        if position > contentHeight - scrollViewHeight - 1 && !isLoadingMorePosts && hasMorePosts{
+            isLoadingMorePosts = true
+            queryPosts(shouldAppend: true)
+        }
     }
+    
+    @objc private func refreshPosts(_ sender: Any) {
+        postSkip = 0
+        hasMorePosts = true
+        queryPosts(shouldAppend: false)    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -46,7 +62,7 @@ class FeedViewController: UIViewController {
         queryPosts()
     }
 
-    private func queryPosts() {
+    private func queryPosts(shouldAppend: Bool = false) {
         // TODO: Pt 1 - Query Posts
 // https://github.com/parse-community/Parse-Swift/blob/3d4bb13acd7496a49b259e541928ad493219d363/ParseSwift.playground/Pages/2%20-%20Finding%20Objects.xcplaygroundpage/Contents.swift#L66
         
@@ -56,6 +72,8 @@ class FeedViewController: UIViewController {
         let query = Post.query()
             .include("user")
             .order([.descending("createdAt")])
+            .limit(postLimit)
+            .skip(postSkip)
 
         // Fetch objects (posts) defined in query (async)
         
@@ -64,9 +82,17 @@ class FeedViewController: UIViewController {
             self?.refreshControl.endRefreshing()
             
                 switch result {
-                case .success(let posts):
+                case .success(let fetchedPosts):
                     // Update local posts property with fetched posts
-                    self?.posts = posts
+                    if shouldAppend {
+                        self?.posts.append(contentsOf: fetchedPosts)
+                    } else {
+                        self?.posts = fetchedPosts
+                    }
+
+                    self?.postSkip += fetchedPosts.count
+                    self?.hasMorePosts = fetchedPosts.count == self?.postLimit
+                    self?.isLoadingMorePosts = false
                 case .failure(let error):
                     self?.showAlert(description: error.localizedDescription)
                 }

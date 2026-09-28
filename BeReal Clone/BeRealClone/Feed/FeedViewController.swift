@@ -14,6 +14,7 @@ import ParseSwift
 class FeedViewController: UIViewController {
 
     @IBOutlet weak var tableView: UITableView!
+    private let refreshControl = UIRefreshControl()
 
     private var posts = [Post]() {
         didSet {
@@ -28,6 +29,15 @@ class FeedViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.allowsSelection = false
+        tableView.alwaysBounceVertical = true
+        refreshControl.tintColor = .white
+        refreshControl.addTarget(self, action: #selector(refreshPosts(_:)), for: .valueChanged)
+        tableView.refreshControl = refreshControl
+        
+    }
+    
+    @objc private func refreshPosts(_ sender: Any) {
+        queryPosts()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -48,13 +58,18 @@ class FeedViewController: UIViewController {
             .order([.descending("createdAt")])
 
         // Fetch objects (posts) defined in query (async)
+        
         query.find { [weak self] result in
-            switch result {
-            case .success(let posts):
-                // Update local posts property with fetched posts
-                self?.posts = posts
-            case .failure(let error):
-                self?.showAlert(description: error.localizedDescription)
+            DispatchQueue.main.async {
+            self?.refreshControl.endRefreshing()
+            
+                switch result {
+                case .success(let posts):
+                    // Update local posts property with fetched posts
+                    self?.posts = posts
+                case .failure(let error):
+                    self?.showAlert(description: error.localizedDescription)
+                }
             }
         }
 

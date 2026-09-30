@@ -21,9 +21,7 @@ class PostCell: UITableViewCell {
     func configure(with post: Post) {
         // TODO: Pt 1 - Configure Post Cell
         // Username
-        if let user = post.user {
-            usernameLabel.text = user.username
-        }
+        usernameLabel.text = post.user?.username ?? post.username ?? "Unknown user"
         
         // Image
         if let imageFile = post.imageFile,
@@ -75,9 +73,13 @@ class PostCell: UITableViewCell {
     }
     override func prepareForReuse() {
         super.prepareForReuse()
+        
         // TODO: P1 - Cancel image download
         // Reset image view image.
         postImageView.image = nil
+        usernameLabel.text = nil
+        captionLabel.text = nil
+        dateLabel.text = nil
 
         // Cancel image request.
         imageDataRequest?.cancel()

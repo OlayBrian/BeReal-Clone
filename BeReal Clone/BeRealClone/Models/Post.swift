@@ -26,6 +26,7 @@ struct Post: ParseObject {
     // Your own custom properties.
     var caption: String?
     var user: User?
+    var username: String?
     var imageFile: ParseFile?
     var location: ParseGeoPoint?
     

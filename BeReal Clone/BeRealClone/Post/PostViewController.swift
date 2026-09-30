@@ -81,6 +81,7 @@ class PostViewController: UIViewController {
 
         // Set the user as the current user
         post.user = User.current
+        post.username = User.current?.username
         
         if let pickedLocation = pickedLocation {
             post.location = try? ParseGeoPoint(location: pickedLocation)

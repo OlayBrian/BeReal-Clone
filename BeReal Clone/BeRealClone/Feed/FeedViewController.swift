@@ -42,14 +42,17 @@ class FeedViewController: UIViewController {
         
     }
     
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let position = scrollView.contentOffset.y
         let contentHeight = scrollView.contentSize.height
         let scrollViewHeight = scrollView.frame.size.height
 
-        if position > contentHeight - scrollViewHeight - 1 && !isLoadingMorePosts && hasMorePosts{
+        if position > contentHeight - scrollViewHeight - 1 && !isLoadingMorePosts && hasMorePosts {
             isLoadingMorePosts = true
-            queryPosts(shouldAppend: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.queryPosts(shouldAppend: true)
+            }
         }
     }
     
@@ -61,7 +64,10 @@ class FeedViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        queryPosts()
+        postSkip = 0
+        hasMorePosts = true
+        isLoadingMorePosts = false
+        queryPosts(shouldAppend: false)
     }
 
     private func queryPosts(shouldAppend: Bool = false) {
@@ -96,6 +102,7 @@ class FeedViewController: UIViewController {
                     self?.hasMorePosts = fetchedPosts.count == self?.postLimit
                     self?.isLoadingMorePosts = false
                 case .failure(let error):
+                    self?.isLoadingMorePosts = false
                     self?.showAlert(description: error.localizedDescription)
                 }
             }

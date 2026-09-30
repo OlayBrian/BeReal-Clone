@@ -34,6 +34,8 @@ class FeedViewController: UIViewController {
         tableView.dataSource = self
         tableView.allowsSelection = false
         tableView.alwaysBounceVertical = true
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 550
         refreshControl.tintColor = .white
         refreshControl.addTarget(self, action: #selector(refreshPosts(_:)), for: .valueChanged)
         tableView.refreshControl = refreshControl
@@ -118,7 +120,13 @@ class FeedViewController: UIViewController {
     }
 
     private func showAlert(description: String? = nil) {
-        let alertController = UIAlertController(title: "Oops...", message: "\(description ?? "Please try again...")", preferredStyle: .alert)
+        print("FEED ALERT ERROR:", description ?? "No description")
+
+        let alertController = UIAlertController(
+            title: "Oops...",
+            message: "\(description ?? "Please try again...")",
+            preferredStyle: .alert
+        )
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
         present(alertController, animated: true)

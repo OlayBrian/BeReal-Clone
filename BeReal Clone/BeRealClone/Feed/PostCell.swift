@@ -18,6 +18,16 @@ class PostCell: UITableViewCell {
     @IBOutlet private weak var dateLabel: UILabel!
     private var imageDataRequest: DataRequest?
 
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        backgroundColor = .black
+        contentView.backgroundColor = .black
+        usernameLabel.textColor = .white
+        captionLabel.textColor = .white
+        dateLabel.textColor = .white
+    }
+
     func configure(with post: Post) {
         // TODO: Pt 1 - Configure Post Cell
         // Username

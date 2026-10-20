@@ -36,12 +36,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if User.current != nil {
             login()
         }
-
+        print("[SceneDelegate] willConnectTo - window: \(String(describing: window)), style: \(window?.traitCollection.userInterfaceStyle.rawValue ?? -1)")
     }
 
     private func login() {
         let storyboard = UIStoryboard(name: Constants.storyboardIdentifier, bundle: nil)
-        self.window?.rootViewController = storyboard.instantiateViewController(withIdentifier: Constants.feedNavigationControllerIdentifier)
+        let vc = storyboard.instantiateViewController(withIdentifier: Constants.feedNavigationControllerIdentifier)
+        vc.overrideUserInterfaceStyle = .dark
+        window?.rootViewController = vc
+        window?.overrideUserInterfaceStyle = .dark
+        window?.backgroundColor = .black
+        window?.makeKeyAndVisible()
+        print("[SceneDelegate] login() applied dark mode - window style: \(window?.traitCollection.userInterfaceStyle.rawValue ?? -1)")
     }
 
     private func logOut() {
@@ -53,7 +59,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             case .success:
 
                 // Make sure UI updates are done on main thread when initiated from background thread.
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
 
                     // Instantiate the storyboard that contains the view controller you want to go to (i.e. destination view controller).
                     let storyboard = UIStoryboard(name: Constants.storyboardIdentifier, bundle: nil)
@@ -62,7 +69,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                     let viewController = storyboard.instantiateViewController(withIdentifier: Constants.loginNavigationControllerIdentifier)
 
                     // Programmatically set the current displayed view controller.
-                    self?.window?.rootViewController = viewController
+                    viewController.overrideUserInterfaceStyle = .dark
+                    self.window?.rootViewController = viewController
+                    self.window?.overrideUserInterfaceStyle = .dark
+                    self.window?.backgroundColor = .black
+                    self.window?.makeKeyAndVisible()
+                    print("[SceneDelegate] logOut() applied dark mode - window style: \(self.window?.traitCollection.userInterfaceStyle.rawValue ?? -1)")
                 }
             case .failure(let error):
                 print("❌ Log out error: \(error)")

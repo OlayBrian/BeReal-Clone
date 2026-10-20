@@ -30,6 +30,8 @@ class FeedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = .black
+        tableView.backgroundColor = .black
         tableView.delegate = self
         tableView.dataSource = self
         tableView.allowsSelection = false
@@ -39,6 +41,16 @@ class FeedViewController: UIViewController {
         refreshControl.tintColor = .white
         refreshControl.addTarget(self, action: #selector(refreshPosts(_:)), for: .valueChanged)
         tableView.refreshControl = refreshControl
+
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.configureWithOpaqueBackground()
+        navigationBarAppearance.backgroundColor = .black
+        navigationBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        navigationBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        navigationController?.navigationBar.standardAppearance = navigationBarAppearance
+        navigationController?.navigationBar.scrollEdgeAppearance = navigationBarAppearance
+        navigationController?.navigationBar.compactAppearance = navigationBarAppearance
+        navigationController?.navigationBar.tintColor = .white
         
     }
     

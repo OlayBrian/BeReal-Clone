@@ -55,7 +55,7 @@ class PostViewController: UIViewController {
         
 
     }
-
+    
     @IBAction func onShareTapped(_ sender: Any) {
 
         // Dismiss Keyboard

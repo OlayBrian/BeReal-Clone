@@ -10,9 +10,9 @@ Time spent: **X** hours spent in total
 
 The following **required** functionality is completed:
 
-- [ ] User can launch camera to take photo instead of photo library
-  - [ ] Users without iPhones to demo this feature can manually add unique photos to their simulator’s Photos app
-- [ ] Posts have a time and location attached to them
+- [x] User can launch camera to take photo instead of photo library
+  - [x] Users without iPhones to demo this feature can manually add unique photos to their simulator’s Photos app
+- [x] Posts have a time and location attached to them
 - [ ] Users are not able to see other users’ photos until they upload their own.
 
 The following **optional** features are implemented:

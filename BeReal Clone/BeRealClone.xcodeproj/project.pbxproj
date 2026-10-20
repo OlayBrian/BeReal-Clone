@@ -384,11 +384,15 @@
 				DEVELOPMENT_TEAM = C33KRV4R24;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BeRealClone/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access so you can take a photo for your post.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to add the place where you took a post photo.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos location data";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -414,11 +418,15 @@
 				DEVELOPMENT_TEAM = C33KRV4R24;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = BeRealClone/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access so you can take a photo for your post.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to add the place where you took a post photo.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos location data";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

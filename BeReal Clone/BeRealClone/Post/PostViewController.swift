@@ -25,35 +25,59 @@ class PostViewController: UIViewController {
 
     private var pickedImage: UIImage?
     private var pickedLocation: CLLocation?
+    private let locationManager = CLLocationManager()
+    private var isWaitingForPhotoLocation = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
     }
 
     @IBAction func onPickedImageTapped(_ sender: UIBarButtonItem) {
-        // TODO: Pt 1 - Present Image picker
-        // Create a configuration object
+        let sourcePicker = UIAlertController(
+            title: "Add a photo",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            sourcePicker.addAction(UIAlertAction(title: "Take Photo", style: .default) { [weak self] _ in
+                self?.presentCamera()
+            })
+        }
+
+        sourcePicker.addAction(UIAlertAction(title: "Choose from Library", style: .default) { [weak self] _ in
+            self?.presentPhotoLibrary()
+        })
+        sourcePicker.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        sourcePicker.popoverPresentationController?.barButtonItem = sender
+        present(sourcePicker, animated: true)
+    }
+
+    private func presentCamera() {
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+            showAlert(description: "The camera is not available on this device.")
+            return
+        }
+
+        let picker = UIImagePickerController()
+        picker.sourceType = .camera
+        picker.cameraCaptureMode = .photo
+        picker.delegate = self
+        present(picker, animated: true)
+    }
+
+    private func presentPhotoLibrary() {
         var config = PHPickerConfiguration(photoLibrary: PHPhotoLibrary.shared())
-
-        // Set the filter to only show images as options (i.e. no videos, etc.).
         config.filter = .images
-
-        // Request the original file format. Fastest method as it avoids transcoding.
         config.preferredAssetRepresentationMode = .current
-
-        // Only allow 1 image to be selected at a time.
         config.selectionLimit = 1
 
-        // Instantiate a picker, passing in the configuration.
         let picker = PHPickerViewController(configuration: config)
-
-        // Set the picker delegate so we can receive whatever image the user picks.
         picker.delegate = self
-
-        // Present the picker
         present(picker, animated: true)
-        
-
     }
     
     @IBAction func onShareTapped(_ sender: Any) {
@@ -112,11 +136,89 @@ class PostViewController: UIViewController {
         view.endEditing(true)
     }
 
+    private func requestLocationForCapturedPhoto() {
+        switch locationManager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            locationManager.requestLocation()
+        case .notDetermined:
+            locationManager.requestWhenInUseAuthorization()
+        case .denied, .restricted:
+            isWaitingForPhotoLocation = false
+            shareButton.isEnabled = true
+            showAlert(description: "Location access is off. Enable it in Settings to add a location to camera photos.")
+        @unknown default:
+            isWaitingForPhotoLocation = false
+            shareButton.isEnabled = true
+        }
+    }
+
     private func showAlert(description: String? = nil) {
         let alertController = UIAlertController(title: "Oops...", message: "\(description ?? "Please try again...")", preferredStyle: .alert)
         let action = UIAlertAction(title: "OK", style: .default)
         alertController.addAction(action)
         present(alertController, animated: true)
+    }
+}
+
+extension PostViewController: CLLocationManagerDelegate {
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        guard isWaitingForPhotoLocation else { return }
+
+        switch manager.authorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse:
+            manager.requestLocation()
+        case .denied, .restricted:
+            isWaitingForPhotoLocation = false
+            shareButton.isEnabled = true
+            showAlert(description: "Location access is off. Enable it in Settings to add a location to camera photos.")
+        case .notDetermined:
+            break
+        @unknown default:
+            isWaitingForPhotoLocation = false
+            shareButton.isEnabled = true
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard isWaitingForPhotoLocation, let location = locations.last else { return }
+
+        pickedLocation = location
+        isWaitingForPhotoLocation = false
+        shareButton.isEnabled = true
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        guard isWaitingForPhotoLocation else { return }
+
+        isWaitingForPhotoLocation = false
+        shareButton.isEnabled = true
+        showAlert(description: "Your location could not be determined. You can still share the photo.")
+    }
+}
+
+extension PostViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
+        guard let image = info[.originalImage] as? UIImage else {
+            picker.dismiss(animated: true)
+            showAlert(description: "The photo could not be loaded.")
+            return
+        }
+
+        pickedImage = image
+        pickedLocation = nil
+        previewImageView.image = image
+        shareButton.isEnabled = false
+        isWaitingForPhotoLocation = true
+        picker.dismiss(animated: true) { [weak self] in
+            self?.requestLocationForCapturedPhoto()
+        }
+    }
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
     }
 }
 

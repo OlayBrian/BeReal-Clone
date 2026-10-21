@@ -90,6 +90,7 @@ class FeedViewController: UIViewController {
         }
 
         Post.query("username" == username)
+            .order([.descending("createdAt")])
             .limit(1)
             .find { [weak self] result in
                 DispatchQueue.main.async {
@@ -147,7 +148,6 @@ class FeedViewController: UIViewController {
             .include("user")
             .order([.descending("createdAt")])
             .limit(postLimit)
-            .skip(postSkip)
 
         // Fetch objects (posts) defined in query (async)
         
@@ -165,7 +165,7 @@ class FeedViewController: UIViewController {
                     }
 
                     self?.postSkip += fetchedPosts.count
-                    self?.hasMorePosts = fetchedPosts.count == self?.postLimit
+                    self?.hasMorePosts = false
                     self?.isLoadingMorePosts = false
                 case .failure(let error):
                     self?.isLoadingMorePosts = false
@@ -215,7 +215,16 @@ extension FeedViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostCell", for: indexPath) as? PostCell else {
             return UITableViewCell()
         }
-        cell.configure(with: posts[indexPath.row])
+        let post = posts[indexPath.row]
+        let isOutsideViewingWindow: Bool
+
+        if let postDate = post.createdAt {
+            isOutsideViewingWindow = Date().timeIntervalSince(postDate) > 24 * 60 * 60
+        } else {
+            isOutsideViewingWindow = true
+        }
+
+        cell.configure(with: post, isImageBlurred: isOutsideViewingWindow)
         return cell
     }
 }

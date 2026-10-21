@@ -17,6 +17,10 @@ class PostCell: UITableViewCell {
     @IBOutlet private weak var captionLabel: UILabel!
     @IBOutlet private weak var dateLabel: UILabel!
     private var imageDataRequest: DataRequest?
+    private let blurView = UIVisualEffectView(
+        effect: UIBlurEffect(style: .systemChromeMaterialDark)
+    )
+    private let blurMessageLabel = UILabel()
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -26,12 +30,46 @@ class PostCell: UITableViewCell {
         usernameLabel.textColor = .white
         captionLabel.textColor = .white
         dateLabel.textColor = .white
+        blurView.translatesAutoresizingMaskIntoConstraints = false
+        blurView.isUserInteractionEnabled = false
+        postImageView.addSubview(blurView)
+        NSLayoutConstraint.activate([
+            blurView.leadingAnchor.constraint(equalTo: postImageView.leadingAnchor),
+            blurView.trailingAnchor.constraint(equalTo: postImageView.trailingAnchor),
+            blurView.topAnchor.constraint(equalTo: postImageView.topAnchor),
+            blurView.bottomAnchor.constraint(equalTo: postImageView.bottomAnchor)
+        ])
+
+        blurMessageLabel.text = "This post is blurred because it is over 24 hours old"
+        blurMessageLabel.textColor = .white
+        blurMessageLabel.font = .preferredFont(forTextStyle: .headline)
+        blurMessageLabel.adjustsFontForContentSizeCategory = true
+        blurMessageLabel.textAlignment = .center
+        blurMessageLabel.numberOfLines = 0
+        blurMessageLabel.translatesAutoresizingMaskIntoConstraints = false
+        blurView.contentView.addSubview(blurMessageLabel)
+        NSLayoutConstraint.activate([
+            blurMessageLabel.centerXAnchor.constraint(equalTo: blurView.contentView.centerXAnchor),
+            blurMessageLabel.centerYAnchor.constraint(equalTo: blurView.contentView.centerYAnchor),
+            blurMessageLabel.leadingAnchor.constraint(
+                greaterThanOrEqualTo: blurView.contentView.leadingAnchor,
+                constant: 24
+            ),
+            blurMessageLabel.trailingAnchor.constraint(
+                lessThanOrEqualTo: blurView.contentView.trailingAnchor,
+                constant: -24
+            )
+        ])
     }
 
-    func configure(with post: Post) {
+    func configure(with post: Post, isImageBlurred: Bool) {
         // TODO: Pt 1 - Configure Post Cell
         // Username
         usernameLabel.text = post.user?.username ?? post.username ?? "Unknown user"
+        blurView.isHidden = !isImageBlurred
+        postImageView.accessibilityLabel = isImageBlurred
+            ? "Post image blurred because it is outside your viewing window"
+            : "Post image"
         
         // Image
         if let imageFile = post.imageFile,

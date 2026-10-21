@@ -27,14 +27,10 @@ The following **additional** features are implemented:
 
 - [x] List anything else that you can get done to improve the app functionality!
 
-Added the ability to save posts from the users feed
+I've added the ability to save posts from the users feed, and when the user posts a photo, it's saved to their photos, along with it's geolocation
 
 ## Video Walkthrough
-
-Here is a reminder on how to embed Loom videos on GitHub. Feel free to remove this reminder once you upload your README. 
-
-[Guide]](https://www.youtube.com/watch?v=GA92eKlYio4) .
-
+![App Walkthrough](BeRealClone2.gif)
 ## Notes
 
 ## License

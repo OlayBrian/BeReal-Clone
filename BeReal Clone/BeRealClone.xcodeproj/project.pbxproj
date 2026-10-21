@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		BD62FE8E30885A51001EA0E1 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD62FE8D30885A51001EA0E1 /* Comment.swift */; };
 		BD62FE9130885CCA001EA0E1 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD62FE9030885CCA001EA0E1 /* NotificationManager.swift */; };
+		BD62FE9430885DB4001EA0E1 /* PhotoLibraryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD62FE9330885DB4001EA0E1 /* PhotoLibraryManager.swift */; };
 		BDEABD39305CC4BA0060F705 /* ParseLiveQuery in Frameworks */ = {isa = PBXBuildFile; productRef = BDEABD38305CC4BA0060F705 /* ParseLiveQuery */; };
 		BDEABD3B305CC4BA0060F705 /* ParseObjC in Frameworks */ = {isa = PBXBuildFile; productRef = BDEABD3A305CC4BA0060F705 /* ParseObjC */; };
 		CB13E51F2913A16C008F45BB /* PostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB13E51E2913A16C008F45BB /* PostCell.swift */; };
@@ -31,6 +32,7 @@
 /* Begin PBXFileReference section */
 		BD62FE8D30885A51001EA0E1 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		BD62FE9030885CCA001EA0E1 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		BD62FE9330885DB4001EA0E1 /* PhotoLibraryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoLibraryManager.swift; sourceTree = "<group>"; };
 		CB13E51E2913A16C008F45BB /* PostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostCell.swift; sourceTree = "<group>"; };
 		CB13E5202913B10B008F45BB /* DateFormatter+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+Extensions.swift"; sourceTree = "<group>"; };
 		CB6997502911044D007EDA6B /* SignUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
@@ -69,6 +71,14 @@
 				BD62FE9030885CCA001EA0E1 /* NotificationManager.swift */,
 			);
 			path = Notifications;
+			sourceTree = "<group>";
+		};
+		BD62FE9230885DB4001EA0E1 /* Photos */ = {
+			isa = PBXGroup;
+			children = (
+				BD62FE9330885DB4001EA0E1 /* PhotoLibraryManager.swift */,
+			);
+			path = Photos;
 			sourceTree = "<group>";
 		};
 		CB13E51B2913A0E7008F45BB /* Login */ = {
@@ -136,6 +146,7 @@
 				CB73D39F290E3B4C00C12538 /* LaunchScreen.storyboard */,
 				CB73D3A2290E3B4C00C12538 /* Info.plist */,
 				BD62FE8F30885CCA001EA0E1 /* Notifications */,
+				BD62FE9230885DB4001EA0E1 /* Photos */,
 			);
 			path = BeRealClone;
 			sourceTree = "<group>";
@@ -242,6 +253,7 @@
 				CB6997512911044D007EDA6B /* SignUpViewController.swift in Sources */,
 				CB13E5212913B10B008F45BB /* DateFormatter+Extensions.swift in Sources */,
 				CB73D397290E3B4A00C12538 /* SceneDelegate.swift in Sources */,
+				BD62FE9430885DB4001EA0E1 /* PhotoLibraryManager.swift in Sources */,
 				BD62FE8E30885A51001EA0E1 /* Comment.swift in Sources */,
 				CB7896F12936045A00635932 /* Post.swift in Sources */,
 			);
@@ -402,6 +414,7 @@
 				INFOPLIST_FILE = BeRealClone/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access so you can take a photo for your post.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to add the place where you took a post photo.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We save posted photos and photos you choose to keep to your camera roll.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos location data";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -436,6 +449,7 @@
 				INFOPLIST_FILE = BeRealClone/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access so you can take a photo for your post.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to add the place where you took a post photo.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We save posted photos and photos you choose to keep to your camera roll.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your photos location data";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

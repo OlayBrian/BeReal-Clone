@@ -23,7 +23,9 @@ class PostCell: UITableViewCell {
     private var baseDateText = ""
     private let commentsStackView = UIStackView()
     private let addCommentButton = UIButton(type: .system)
+    private let savePhotoButton = UIButton(type: .system)
     private var onAddComment: (() -> Void)?
+    private var onSavePhoto: ((UIImage) -> Void)?
     private let blurView = UIVisualEffectView(
         effect: UIBlurEffect(style: .systemChromeMaterialDark)
     )
@@ -85,14 +87,22 @@ class PostCell: UITableViewCell {
         addCommentButton.titleLabel?.adjustsFontForContentSizeCategory = true
         addCommentButton.addTarget(self, action: #selector(addCommentTapped), for: .touchUpInside)
         contentStackView.addArrangedSubview(addCommentButton)
-        contentStackView.setCustomSpacing(16, after: addCommentButton)
+
+        savePhotoButton.setTitle("Save Photo", for: .normal)
+        savePhotoButton.contentHorizontalAlignment = .leading
+        savePhotoButton.titleLabel?.font = .preferredFont(forTextStyle: .body)
+        savePhotoButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        savePhotoButton.addTarget(self, action: #selector(savePhotoTapped), for: .touchUpInside)
+        contentStackView.addArrangedSubview(savePhotoButton)
+        contentStackView.setCustomSpacing(16, after: savePhotoButton)
     }
 
     func configure(
         with post: Post,
         comments: [Comment],
         isImageBlurred: Bool,
-        onAddComment: @escaping () -> Void
+        onAddComment: @escaping () -> Void,
+        onSavePhoto: @escaping (UIImage) -> Void
     ) {
         representedPostId = post.objectId
         geocoder.cancelGeocode()
@@ -105,6 +115,9 @@ class PostCell: UITableViewCell {
             ? "Post image blurred because it is over 24 hours old"
             : "Post image"
         self.onAddComment = onAddComment
+        self.onSavePhoto = onSavePhoto
+        savePhotoButton.isEnabled = !isImageBlurred
+        savePhotoButton.alpha = isImageBlurred ? 0.5 : 1
         configureComments(comments)
         
         // Image
@@ -186,6 +199,11 @@ class PostCell: UITableViewCell {
         onAddComment?()
     }
 
+    @objc private func savePhotoTapped() {
+        guard let image = postImageView.image else { return }
+        onSavePhoto?(image)
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         
@@ -199,6 +217,9 @@ class PostCell: UITableViewCell {
         baseDateText = ""
         geocoder.cancelGeocode()
         onAddComment = nil
+        onSavePhoto = nil
+        savePhotoButton.isEnabled = true
+        savePhotoButton.alpha = 1
         configureComments([])
 
         // Cancel image request.

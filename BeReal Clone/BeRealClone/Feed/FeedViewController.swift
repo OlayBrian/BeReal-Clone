@@ -249,6 +249,23 @@ class FeedViewController: UIViewController {
         present(alertController, animated: true)
     }
 
+    private func savePhotoToLibrary(_ image: UIImage) {
+        PhotoLibraryManager.shared.save(image) { [weak self] result in
+            switch result {
+            case .success:
+                let alertController = UIAlertController(
+                    title: "Saved",
+                    message: "The photo was saved to your camera roll.",
+                    preferredStyle: .alert
+                )
+                alertController.addAction(UIAlertAction(title: "OK", style: .default))
+                self?.present(alertController, animated: true)
+            case .failure(let error):
+                self?.showAlert(description: error.localizedDescription)
+            }
+        }
+    }
+
     @IBAction func onLogOutTapped(_ sender: Any) {
         showConfirmLogoutAlert()
     }
@@ -300,10 +317,14 @@ extension FeedViewController: UITableViewDataSource {
         cell.configure(
             with: post,
             comments: comments,
-            isImageBlurred: isOutsideViewingWindow
-        ) { [weak self] in
-            self?.showAddCommentAlert(for: post)
-        }
+            isImageBlurred: isOutsideViewingWindow,
+            onAddComment: { [weak self] in
+                self?.showAddCommentAlert(for: post)
+            },
+            onSavePhoto: { [weak self] image in
+                self?.savePhotoToLibrary(image)
+            }
+        )
         return cell
     }
 }

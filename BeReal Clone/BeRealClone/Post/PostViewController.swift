@@ -120,8 +120,14 @@ class PostViewController: UIViewController {
                 case .success(let post):
                     print("✅ Post Saved! \(post)")
 
-                    // Return to previous view controller
-                    self?.navigationController?.popViewController(animated: true)
+                    PhotoLibraryManager.shared.save(image) { saveResult in
+                        if case .failure(let error) = saveResult {
+                            print("❌ Photo Library save error: \(error.localizedDescription)")
+                        }
+
+                        // Return to previous view controller after the save attempt finishes.
+                        self?.navigationController?.popViewController(animated: true)
+                    }
 
                 case .failure(let error):
                     self?.showAlert(description: error.localizedDescription)

@@ -19,6 +19,7 @@ class FeedViewController: UIViewController {
     private var postSkip = 0
     private let postLimit = 10
     private var hasMorePosts = true
+    private var canViewFeed = false
     
     private var posts = [Post]() {
         didSet {
@@ -60,7 +61,10 @@ class FeedViewController: UIViewController {
         let contentHeight = scrollView.contentSize.height
         let scrollViewHeight = scrollView.frame.size.height
 
-        if position > contentHeight - scrollViewHeight - 1 && !isLoadingMorePosts && hasMorePosts {
+        if canViewFeed,
+           position > contentHeight - scrollViewHeight - 1,
+           !isLoadingMorePosts,
+           hasMorePosts {
             isLoadingMorePosts = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.queryPosts(shouldAppend: true)
@@ -69,17 +73,67 @@ class FeedViewController: UIViewController {
     }
     
     @objc private func refreshPosts(_ sender: Any) {
-        postSkip = 0
-        hasMorePosts = true
-        queryPosts(shouldAppend: false)    }
+        checkFeedEligibility()
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        checkFeedEligibility()
+    }
+
+    private func checkFeedEligibility() {
+        guard let username = User.current?.username else {
+            lockFeed()
+            refreshControl.endRefreshing()
+            return
+        }
+
+        Post.query("username" == username)
+            .limit(1)
+            .find { [weak self] result in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+
+                    switch result {
+                    case .success(let userPosts):
+                        if userPosts.isEmpty {
+                            self.lockFeed()
+                            self.refreshControl.endRefreshing()
+                        } else {
+                            self.unlockFeedAndLoadPosts()
+                        }
+                    case .failure(let error):
+                        self.refreshControl.endRefreshing()
+                        self.showAlert(description: error.localizedDescription)
+                    }
+                }
+            }
+    }
+
+    private func unlockFeedAndLoadPosts() {
+        canViewFeed = true
+        tableView.backgroundView = nil
         postSkip = 0
         hasMorePosts = true
         isLoadingMorePosts = false
         queryPosts(shouldAppend: false)
+    }
+
+    private func lockFeed() {
+        canViewFeed = false
+        posts = []
+        postSkip = 0
+        hasMorePosts = false
+        isLoadingMorePosts = false
+
+        let messageLabel = UILabel()
+        messageLabel.text = "Create your first post to unlock the feed."
+        messageLabel.textColor = .white
+        messageLabel.font = .preferredFont(forTextStyle: .headline)
+        messageLabel.textAlignment = .center
+        messageLabel.numberOfLines = 0
+        tableView.backgroundView = messageLabel
     }
 
     private func queryPosts(shouldAppend: Bool = false) {

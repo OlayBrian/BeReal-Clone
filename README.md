@@ -1,8 +1,8 @@
-# Project 3 - *Name of App Here*
+# Project 3 - BeReal
 
 Submitted by: Brian Ribeiro
 
-**BeReal** is an app that introduces ... [TODO] 
+**BeReal** is an app that works as a social media app, but includeds geolocation data.
 
 Time spent: **X** hours spent in total
 
@@ -13,7 +13,10 @@ The following **required** functionality is completed:
 - [x] User can launch camera to take photo instead of photo library
   - [x] Users without iPhones to demo this feature can manually add unique photos to their simulator’s Photos app
 - [x] Posts have a time and location attached to them
-- [ ] Users are not able to see other users’ photos until they upload their own.
+- [x] Users are not able to see other users’ photos until they upload their own.
+- [ ] Fetch the 10 most recent photos within the last 24 hours from the server.
+Of those returned in the response, only show the post if the createdAt property is within 24 hours of the logged in user’s last post.
+You can either obstruct the photo with a blur or just not show it to the user.
 
 The following **optional** features are implemented:
 

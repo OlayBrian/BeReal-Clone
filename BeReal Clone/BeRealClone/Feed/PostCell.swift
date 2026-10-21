@@ -16,7 +16,14 @@ class PostCell: UITableViewCell {
     @IBOutlet private weak var postImageView: UIImageView!
     @IBOutlet private weak var captionLabel: UILabel!
     @IBOutlet private weak var dateLabel: UILabel!
+    @IBOutlet private weak var contentStackView: UIStackView!
     private var imageDataRequest: DataRequest?
+    private let geocoder = CLGeocoder()
+    private var representedPostId: String?
+    private var baseDateText = ""
+    private let commentsStackView = UIStackView()
+    private let addCommentButton = UIButton(type: .system)
+    private var onAddComment: (() -> Void)?
     private let blurView = UIVisualEffectView(
         effect: UIBlurEffect(style: .systemChromeMaterialDark)
     )
@@ -60,16 +67,45 @@ class PostCell: UITableViewCell {
                 constant: -24
             )
         ])
+
+        commentsStackView.axis = .vertical
+        commentsStackView.spacing = 4
+        commentsStackView.isLayoutMarginsRelativeArrangement = true
+        commentsStackView.directionalLayoutMargins = NSDirectionalEdgeInsets(
+            top: 4,
+            leading: 16,
+            bottom: 0,
+            trailing: 16
+        )
+        contentStackView.addArrangedSubview(commentsStackView)
+
+        addCommentButton.setTitle("Add Comment", for: .normal)
+        addCommentButton.contentHorizontalAlignment = .leading
+        addCommentButton.titleLabel?.font = .preferredFont(forTextStyle: .body)
+        addCommentButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        addCommentButton.addTarget(self, action: #selector(addCommentTapped), for: .touchUpInside)
+        contentStackView.addArrangedSubview(addCommentButton)
+        contentStackView.setCustomSpacing(16, after: addCommentButton)
     }
 
-    func configure(with post: Post, isImageBlurred: Bool) {
+    func configure(
+        with post: Post,
+        comments: [Comment],
+        isImageBlurred: Bool,
+        onAddComment: @escaping () -> Void
+    ) {
+        representedPostId = post.objectId
+        geocoder.cancelGeocode()
+
         // TODO: Pt 1 - Configure Post Cell
         // Username
         usernameLabel.text = post.user?.username ?? post.username ?? "Unknown user"
         blurView.isHidden = !isImageBlurred
         postImageView.accessibilityLabel = isImageBlurred
-            ? "Post image blurred because it is outside your viewing window"
+            ? "Post image blurred because it is over 24 hours old"
             : "Post image"
+        self.onAddComment = onAddComment
+        configureComments(comments)
         
         // Image
         if let imageFile = post.imageFile,
@@ -93,32 +129,63 @@ class PostCell: UITableViewCell {
         captionLabel.text = post.caption
         
         // Date
-        if let date = post.createdAt {
-            dateLabel.text = DateFormatter.postFormatter.string(from: date)
-        }
+        baseDateText = post.createdAt.map {
+            DateFormatter.postFormatter.string(from: $0)
+        } ?? ""
+        dateLabel.text = baseDateText
         
         if let location = post.location {
+            let postId = post.objectId
             let clLocation = CLLocation(
                 latitude: location.latitude,
                 longitude: location.longitude
             )
             
-            CLGeocoder().reverseGeocodeLocation(clLocation) { [weak self] placemarks, error in
-                guard let placemark = placemarks?.first else { return }
+            geocoder.reverseGeocodeLocation(clLocation) { [weak self] placemarks, error in
+                guard let self = self,
+                      self.representedPostId == postId,
+                      let placemark = placemarks?.first else { return }
                 
-                let city = placemark.locality
-                let state = placemark.administrativeArea
+                let locationText: String?
+                if let city = placemark.locality,
+                   let state = placemark.administrativeArea {
+                    locationText = "\(city), \(state)"
+                } else {
+                    locationText = placemark.locality
+                }
                 
                 DispatchQueue.main.async {
-                    if let city = city, let state = state {
-                        self?.dateLabel.text = "\(self?.dateLabel.text ?? "") • \(city), \(state)"
-                    } else if let city = city {
-                        self?.dateLabel.text = "\(self?.dateLabel.text ?? "") • \(city)"
-                    }
+                    guard self.representedPostId == postId else { return }
+                    self.dateLabel.text = [self.baseDateText, locationText]
+                        .compactMap { $0 }
+                        .filter { !$0.isEmpty }
+                        .joined(separator: " • ")
                 }
             }
         }
     }
+    private func configureComments(_ comments: [Comment]) {
+        commentsStackView.arrangedSubviews.forEach { view in
+            commentsStackView.removeArrangedSubview(view)
+            view.removeFromSuperview()
+        }
+
+        for comment in comments {
+            let label = UILabel()
+            let username = comment.user?.username ?? comment.username ?? "Unknown user"
+            label.text = "\(username): \(comment.text ?? "")"
+            label.textColor = .white
+            label.font = .preferredFont(forTextStyle: .subheadline)
+            label.adjustsFontForContentSizeCategory = true
+            label.numberOfLines = 0
+            commentsStackView.addArrangedSubview(label)
+        }
+    }
+
+    @objc private func addCommentTapped() {
+        onAddComment?()
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         
@@ -128,6 +195,11 @@ class PostCell: UITableViewCell {
         usernameLabel.text = nil
         captionLabel.text = nil
         dateLabel.text = nil
+        representedPostId = nil
+        baseDateText = ""
+        geocoder.cancelGeocode()
+        onAddComment = nil
+        configureComments([])
 
         // Cancel image request.
         imageDataRequest?.cancel()

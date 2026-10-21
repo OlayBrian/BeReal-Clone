@@ -20,6 +20,7 @@ class FeedViewController: UIViewController {
     private let postLimit = 10
     private var hasMorePosts = true
     private var canViewFeed = false
+    private var commentsByPostId = [String: [Comment]]()
     
     private var posts = [Post]() {
         didSet {
@@ -161,9 +162,11 @@ class FeedViewController: UIViewController {
                     if shouldAppend {
                         self?.posts.append(contentsOf: fetchedPosts)
                     } else {
+                        self?.commentsByPostId = [:]
                         self?.posts = fetchedPosts
                     }
 
+                    fetchedPosts.forEach { self?.fetchComments(for: $0) }
                     self?.postSkip += fetchedPosts.count
                     self?.hasMorePosts = false
                     self?.isLoadingMorePosts = false
@@ -175,6 +178,75 @@ class FeedViewController: UIViewController {
         }
 
 
+    }
+
+    private func fetchComments(for post: Post) {
+        guard let postId = post.objectId else { return }
+
+        do {
+            try Comment.query("post" == post)
+                .include("user")
+                .order([.ascending("createdAt")])
+                .find { [weak self] result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .success(let comments):
+                            guard let self = self else { return }
+                            self.commentsByPostId[postId] = comments
+                            if let row = self.posts.firstIndex(where: { $0.objectId == postId }) {
+                                self.tableView.reloadRows(
+                                    at: [IndexPath(row: row, section: 0)],
+                                    with: .none
+                                )
+                            }
+                        case .failure(let error):
+                            print("❌ Error fetching comments: \(error.localizedDescription)")
+                        }
+                    }
+                }
+        } catch {
+            print("❌ Error creating comments query: \(error.localizedDescription)")
+        }
+    }
+
+    private func showAddCommentAlert(for post: Post) {
+        let alertController = UIAlertController(
+            title: "Add Comment",
+            message: nil,
+            preferredStyle: .alert
+        )
+        alertController.addTextField { textField in
+            textField.placeholder = "Write a comment"
+            textField.autocapitalizationType = .sentences
+        }
+
+        let postAction = UIAlertAction(title: "Post", style: .default) { [weak self, weak alertController] _ in
+            guard let self = self,
+                  let text = alertController?.textFields?.first?.text?
+                    .trimmingCharacters(in: .whitespacesAndNewlines),
+                  !text.isEmpty else { return }
+
+            var comment = Comment()
+            comment.post = post
+            comment.user = User.current
+            comment.username = User.current?.username
+            comment.text = text
+
+            comment.save { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        self?.fetchComments(for: post)
+                    case .failure(let error):
+                        self?.showAlert(description: error.localizedDescription)
+                    }
+                }
+            }
+        }
+
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alertController.addAction(postAction)
+        present(alertController, animated: true)
     }
 
     @IBAction func onLogOutTapped(_ sender: Any) {
@@ -224,7 +296,14 @@ extension FeedViewController: UITableViewDataSource {
             isOutsideViewingWindow = true
         }
 
-        cell.configure(with: post, isImageBlurred: isOutsideViewingWindow)
+        let comments = post.objectId.flatMap { commentsByPostId[$0] } ?? []
+        cell.configure(
+            with: post,
+            comments: comments,
+            isImageBlurred: isOutsideViewingWindow
+        ) { [weak self] in
+            self?.showAddCommentAlert(for: post)
+        }
         return cell
     }
 }

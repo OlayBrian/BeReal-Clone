@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 // TODO: Import Parse Swift
 import ParseSwift
@@ -250,8 +251,12 @@ class FeedViewController: UIViewController {
         present(alertController, animated: true)
     }
 
-    private func savePhotoToLibrary(_ image: UIImage) {
-        PhotoLibraryManager.shared.save(image) { [weak self] result in
+    private func savePhotoToLibrary(_ image: UIImage, from post: Post) {
+        let location = post.location.map {
+            CLLocation(latitude: $0.latitude, longitude: $0.longitude)
+        }
+
+        PhotoLibraryManager.shared.save(image, location: location) { [weak self] result in
             switch result {
             case .success:
                 let alertController = UIAlertController(
@@ -323,7 +328,7 @@ extension FeedViewController: UITableViewDataSource {
                 self?.showAddCommentAlert(for: post)
             },
             onSavePhoto: { [weak self] image in
-                self?.savePhotoToLibrary(image)
+                self?.savePhotoToLibrary(image, from: post)
             }
         )
         return cell

@@ -120,7 +120,7 @@ class PostViewController: UIViewController {
                 case .success(let post):
                     print("✅ Post Saved! \(post)")
 
-                    PhotoLibraryManager.shared.save(image) { saveResult in
+                    PhotoLibraryManager.shared.save(image, location: self?.pickedLocation) { saveResult in
                         if case .failure(let error) = saveResult {
                             print("❌ Photo Library save error: \(error.localizedDescription)")
                         }

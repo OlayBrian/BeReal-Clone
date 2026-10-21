@@ -1,3 +1,4 @@
+import CoreLocation
 import Photos
 import UIKit
 
@@ -6,7 +7,11 @@ final class PhotoLibraryManager {
 
     private init() {}
 
-    func save(_ image: UIImage, completion: @escaping (Result<Void, Error>) -> Void) {
+    func save(
+        _ image: UIImage,
+        location: CLLocation?,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
             guard status == .authorized || status == .limited else {
                 let error = NSError(
@@ -21,7 +26,8 @@ final class PhotoLibraryManager {
             }
 
             PHPhotoLibrary.shared().performChanges {
-                PHAssetChangeRequest.creationRequestForAsset(from: image)
+                let request = PHAssetChangeRequest.creationRequestForAsset(from: image)
+                request.location = location
             } completionHandler: { success, error in
                 DispatchQueue.main.async {
                     if success {

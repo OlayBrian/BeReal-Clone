@@ -149,6 +149,7 @@ class FeedViewController: UIViewController {
             .include("user")
             .order([.descending("createdAt")])
             .limit(postLimit)
+            .skip(postSkip)
 
         // Fetch objects (posts) defined in query (async)
         
@@ -168,7 +169,7 @@ class FeedViewController: UIViewController {
 
                     fetchedPosts.forEach { self?.fetchComments(for: $0) }
                     self?.postSkip += fetchedPosts.count
-                    self?.hasMorePosts = false
+                    self?.hasMorePosts = fetchedPosts.count == self?.postLimit
                     self?.isLoadingMorePosts = false
                 case .failure(let error):
                     self?.isLoadingMorePosts = false

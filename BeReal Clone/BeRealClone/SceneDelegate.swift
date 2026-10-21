@@ -24,6 +24,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let _ = (scene as? UIWindowScene) else { return }
 
         NotificationCenter.default.addObserver(forName: Notification.Name("login"), object: nil, queue: OperationQueue.main) { [weak self] _ in
+            NotificationManager.shared.requestPermissionAndScheduleReminder()
             self?.login()
         }
 
@@ -51,6 +52,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     private func logOut() {
+        NotificationManager.shared.unregisterNotifications()
+
         // TODO: Pt 1 - Log out Parse user.
         // This will also remove the session from the Keychain, log out of linked services and all future calls to current will return nil.
         User.logout { [weak self] result in

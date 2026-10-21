@@ -1,10 +1,10 @@
-# Project 3 - BeReal
+# Project 3 - BeReal Clone
 
 Submitted by: Brian Ribeiro
 
-**BeReal** is an app that works as a social media app, but includeds geolocation data.
+**BeReal Clone **is an app that works as a social media app, but includeds geolocation data.
 
-Time spent: **X** hours spent in total
+Time spent: 14 hours spent in total
 
 ## Required Features
 
@@ -20,12 +20,14 @@ You can either obstruct the photo with a blur or just not show it to the user.
 
 The following **optional** features are implemented:
 
-- [ ] Posts have a comment section, which displays the commenter’s username and comment context
-- [ ] User receives notification when it is time to post
+- [x] Posts have a comment section, which displays the commenter’s username and comment context
+- [x] User receives notification when it is time to post
 
 The following **additional** features are implemented:
 
-- [ ] List anything else that you can get done to improve the app functionality!
+- [x] List anything else that you can get done to improve the app functionality!
+
+Added the ability to save posts from the users feed
 
 ## Video Walkthrough
 
@@ -35,11 +37,9 @@ Here is a reminder on how to embed Loom videos on GitHub. Feel free to remove th
 
 ## Notes
 
-Describe any challenges encountered while building the app.
-
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright [2004] [Brian Ribeiro]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

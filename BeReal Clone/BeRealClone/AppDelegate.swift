@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 // TODO: Pt 1 - Import Parse Swift
 import ParseSwift
@@ -20,6 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ParseSwift.initialize(applicationId: "1r930UoV7s2RiJTmCGf6j45Jww74tlW8iCaHpUWp",
             clientKey: "P09gRplYnN33GUHPmu3skZvxobYEdVRF0GOFK1c3",
             serverURL: URL(string: "https://parseapi.back4app.com")!)
+
+        UNUserNotificationCenter.current().delegate = self
 
         // TODO: Pt 1: - Instantiate and save a test parse object to your server
         // Instantiate the test parse object
@@ -53,6 +56,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+    }
+}
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        [.banner, .sound]
     }
 }
 
